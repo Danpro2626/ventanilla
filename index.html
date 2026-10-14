@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14213D">
 <title>Ventanilla — todos tus trámites universitarios en un lugar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
@@ -133,6 +134,42 @@ select{appearance:none;-webkit-appearance:none;background:#fff url("data:image/s
 .msg{border-radius:14px}
 #chat{scrollbar-width:thin}
 @media (prefers-reduced-motion:no-preference){.turno{transition:transform .3s}.turno:hover{transform:rotate(2deg)}}
+
+/* ---------- Adaptación a PC y celular ---------- */
+html{-webkit-text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+.opts{max-height:min(390px,52dvh)}
+@media (min-width:1100px){.wrap,nav,main{max-width:1000px}.hero{gap:48px}}
+@media (max-width:900px){.stub{grid-template-columns:1fr}.stub>div:last-child{flex-direction:row!important;flex-wrap:wrap}}
+@media (max-width:640px){
+ body{font-size:16px}
+ header{padding:26px 16px 24px}
+ .hero{gap:18px}
+ .stats{gap:8px 18px}
+ .uni{padding:14px 12px}
+ .uni .wrap{flex-direction:column;align-items:stretch;gap:12px}
+ .combo{max-width:none;min-width:0}
+ .uni a{text-align:center;padding:12px 16px}
+ nav{position:fixed;left:0;right:0;bottom:0;z-index:50;max-width:none;margin:0;gap:6px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:2px solid var(--ink);overflow:visible}
+ nav button{min-width:0;padding:10px 4px;border-radius:12px;font-size:.84rem;line-height:1.15}
+ main{padding:18px 12px calc(96px + env(safe-area-inset-bottom))}
+ main section>h2{font-size:1.55rem}
+ .card{padding:14px}
+ #chat{height:min(56dvh,460px)}
+ .msg{max-width:94%}
+ .step{font-size:.74rem}
+ .done{display:block}
+ .slots{grid-template-columns:repeat(4,1fr)}
+ .card[style*="justify-content"]{flex-wrap:wrap}
+ .panel{border-radius:18px;box-shadow:5px 5px 0 var(--ink),0 20px 40px -14px rgba(20,33,61,.6)}
+}
+@media (max-width:380px){.slots{grid-template-columns:repeat(3,1fr)}.tk-num{font-size:3rem}}
+@media (pointer:coarse){
+ button,.chip,.day,.slot,.filtros button{min-height:44px}
+ .opt{padding:11px 10px}
+ select,input[type=text]{min-height:46px}
+ input[type=checkbox]{width:20px;height:20px}
+}
 </style>
 </head>
 <body>
@@ -518,7 +555,7 @@ function pintar(q){
   $("#pie").innerHTML=`<span>${visibles.length} ${visibles.length===1?"resultado":"resultados"}</span><span class="hint"><kbd>↑</kbd><kbd>↓</kbd> moverte <kbd>Enter</kbd> elegir <kbd>Esc</kbd> cerrar</span>`;
   const a=$("#o"+activo);if(a)a.scrollIntoView({block:"nearest"});
 }
-function abrir(q){panel.hidden=false;combo.classList.add("open");uq.setAttribute("aria-expanded","true");pintar(q)}
+function abrir(q){const era=panel.hidden;panel.hidden=false;if(era&&matchMedia("(max-width:720px)").matches)combo.scrollIntoView({block:"start",behavior:"smooth"});combo.classList.add("open");uq.setAttribute("aria-expanded","true");pintar(q)}
 function cerrar(){panel.hidden=true;combo.classList.remove("open");uq.setAttribute("aria-expanded","false");uq.value=uni().n}
 function elegir(i){const u=visibles[i];if(u){setUni(u.id)}cerrar();uq.blur()}
 function saludo(){
