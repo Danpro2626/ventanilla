@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ventanilla — todos tus trámites universitarios en un lugar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF2F6;--ink:#14213D;--mute:#5B6B82;--line:#CBD5E1;--card:#fff;--ticket:#FFC53D;--teal:#0F766E;--tealbg:#D6EFEB;--red:#B42318}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 "Source Sans 3",system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;line-height:1.1}
+header{background:var(--ink);background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.09) 1px,transparent 0);background-size:22px 22px;color:#fff;padding:44px 20px 40px;overflow:hidden}
+.wrap{max-width:900px;margin:0 auto}
+header h1{font-size:clamp(2rem,6vw,3.4rem);font-weight:800;letter-spacing:-.02em}
+header p{max-width:52ch;color:#C8D3E3;margin:12px 0 0}
+.turno{display:inline-block;background:var(--ticket);color:var(--ink);font-family:"Bricolage Grotesque",sans-serif;font-weight:800;padding:4px 14px;border-radius:4px;margin-bottom:14px;transform:rotate(-2deg)}
+nav{display:flex;gap:6px;max-width:900px;margin:-1px auto 0;padding:0 12px;overflow-x:auto}
+nav button{flex:1;min-width:130px;border:0;background:#DCE4EE;color:var(--mute);padding:14px 10px;font:600 1rem "Bricolage Grotesque",sans-serif;cursor:pointer;border-radius:0 0 10px 10px}
+nav button[aria-selected=true]{background:var(--ticket);color:var(--ink)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+main{max-width:900px;margin:0 auto;padding:24px 16px 60px}
+section[hidden]{display:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:14px}
+.btn{background:var(--ink);color:#fff;border:0;border-radius:8px;padding:10px 16px;font:600 .95rem "Source Sans 3",sans-serif;cursor:pointer}
+.btn.alt{background:#fff;color:var(--ink);border:1px solid var(--ink)}
+.btn.danger{background:#fff;color:var(--red);border:1px solid var(--red)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{background:#fff;border:1px solid var(--ink);border-radius:99px;padding:6px 14px;cursor:pointer;font:inherit;color:var(--ink)}
+.chip:hover{background:var(--ticket)}
+#chat{height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px}
+.msg{max-width:88%;padding:10px 14px;border-radius:12px}
+.msg.u{align-self:flex-end;background:var(--ink);color:#fff;border-bottom-right-radius:2px}
+.msg.b{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:2px}
+.msg ul{margin:6px 0;padding:0;list-style:none}
+.msg li label{display:flex;gap:8px;align-items:flex-start;padding:2px 0;cursor:pointer}
+.meta{font-size:.9rem;color:var(--mute);margin-top:6px}
+.falta{font-weight:600;color:var(--teal)}
+form.row{display:flex;gap:8px;margin-top:10px}
+input[type=text],select{flex:1;padding:10px 12px;border:1px solid var(--ink);border-radius:8px;font:inherit;background:#fff;color:var(--ink)}
+.stub{display:grid;grid-template-columns:1fr auto;gap:12px;border-left:8px solid var(--ticket)}
+.stub .num{font:800 1.4rem "Bricolage Grotesque",sans-serif}
+.steps{display:flex;gap:0;margin:14px 0 4px}
+.step{flex:1;text-align:center;font-size:.85rem;color:var(--mute);position:relative;padding-top:22px}
+.step::before{content:"";position:absolute;top:6px;left:0;right:0;height:4px;background:var(--line)}
+.step::after{content:"";position:absolute;top:0;left:calc(50% - 8px);width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--line)}
+.step.on{color:var(--ink);font-weight:600}
+.step.on::before{background:var(--teal)}
+.step.on::after{background:var(--teal);border-color:var(--teal)}
+.done{background:var(--tealbg);color:var(--teal);font-weight:600;padding:6px 10px;border-radius:6px;display:inline-block;margin-top:6px}
+.days{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.day{border:1px solid var(--ink);background:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;font:inherit;color:var(--ink);white-space:nowrap}
+.day[aria-pressed=true]{background:var(--ink);color:#fff}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin:12px 0}
+.slot{padding:10px;border:1px solid var(--teal);background:#fff;color:var(--teal);border-radius:8px;cursor:pointer;font:600 1rem "Source Sans 3",sans-serif}
+.slot[aria-pressed=true]{background:var(--teal);color:#fff}
+.slot:disabled{border-color:var(--line);color:#94A3B8;background:#F1F5F9;text-decoration:line-through;cursor:not-allowed}
+.lbl{display:block;font-weight:600;margin:12px 0 4px}
+.note{font-size:.9rem;color:var(--mute);text-align:center;margin-top:30px}
+.empty{color:var(--mute);padding:8px 0}
+.uni{background:var(--ticket)}
+.uni .wrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.uni label{font-weight:600}.uni input{flex:1;min-width:240px;max-width:520px}
+.uni a{color:var(--ink);font-weight:600}
+.badge{display:inline-block;font-size:.8rem;font-weight:600;padding:1px 8px;border-radius:99px;margin-left:6px}
+.badge.ok{background:var(--tealbg);color:var(--teal)}.badge.ver{background:#FFF1CC;color:#7A5200}
+.hero{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:center}
+.stats{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:20px;color:#C8D3E3;font-size:.95rem}
+.stats b{font:800 1.6rem "Bricolage Grotesque",sans-serif;color:var(--ticket);margin-right:5px}
+.ticket{width:230px;background:var(--ticket);color:var(--ink);border-radius:14px;padding:18px 20px;transform:rotate(3deg);text-align:center;box-shadow:0 14px 0 -6px rgba(0,0,0,.25);
+ -webkit-mask:radial-gradient(circle 11px at 0 62%,#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 11px at 100% 62%,#0000 98%,#000) right/51% 100% no-repeat;mask:radial-gradient(circle 11px at 0 62%,#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 11px at 100% 62%,#0000 98%,#000) right/51% 100% no-repeat}
+.tk-top{font-weight:600;font-size:.9rem}
+.tk-num{font:800 3.6rem/1 "Bricolage Grotesque",sans-serif;letter-spacing:-.03em;padding:6px 0 12px;border-bottom:2px dashed var(--ink)}
+.tk-uni{font:600 .95rem "Bricolage Grotesque",sans-serif;padding:12px 0 6px;min-height:3.4em}
+.tk-foot{font-size:.82rem}
+@media (max-width:720px){.hero{grid-template-columns:1fr}.ticket{width:100%;max-width:260px;transform:rotate(-2deg)}}
+main section>h2{font-size:1.9rem;margin-bottom:6px}
+.card{box-shadow:0 2px 0 rgba(20,33,61,.08)}
+.stub{background:linear-gradient(90deg,#FFF8E1,#fff 45%)}
+
+:root{color-scheme:light}
+.uni{padding:16px;position:relative;z-index:20}
+.uni .wrap{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap}
+.combo{position:relative;flex:1;min-width:260px;max-width:600px}
+.combo label{display:block;font:800 .95rem "Bricolage Grotesque",sans-serif;margin-bottom:6px}
+.field{display:flex;align-items:center;gap:10px;background:#fff;border:2.5px solid var(--ink);border-radius:14px;padding:0 14px;box-shadow:4px 4px 0 var(--ink);transition:transform .15s,box-shadow .15s}
+.field:focus-within{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.field input{flex:1;border:0!important;outline:0!important;background:transparent;padding:14px 0!important;font:600 1.05rem "Bricolage Grotesque",sans-serif;min-width:0;max-width:none!important}
+.chev{transition:transform .2s}.combo.open .chev{transform:rotate(180deg)}
+.combo.open .field{box-shadow:4px 4px 0 var(--ink),0 0 0 6px rgba(20,33,61,.14)}
+.panel{--pn:#101A33;position:absolute;left:0;right:0;top:calc(100% + 14px);background:var(--pn);color:#E8EEF8;border:2.5px solid var(--ink);border-radius:22px;box-shadow:7px 7px 0 var(--ink),0 28px 50px -14px rgba(20,33,61,.6);overflow:hidden;z-index:30;transform-origin:50% 0}
+.panel:not([hidden]){animation:pop .24s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes pop{from{opacity:0;transform:translateY(-10px) scale(.96)}to{opacity:1;transform:none}}
+.filtros{display:flex;gap:4px;padding:4px;margin:12px 12px 2px;background:rgba(255,255,255,.07);border-radius:14px}
+.filtros button{flex:1;border:0;background:transparent;border-radius:10px;padding:8px 10px;font:700 .9rem "Bricolage Grotesque",sans-serif;color:#AFBCD3;cursor:pointer;transition:background .15s,color .15s}
+.filtros button .n{font-weight:600;opacity:.65;margin-left:5px}
+.filtros button:not(.on):hover{background:rgba(255,255,255,.09);color:#fff}
+.filtros button.on{background:var(--ticket);color:var(--ink)}
+.opts{max-height:min(390px,52vh);overflow-y:auto;overscroll-behavior:contain;padding:0 8px 8px;scrollbar-width:thin;scrollbar-color:#3B4E78 transparent}
+.opts::-webkit-scrollbar{width:8px}.opts::-webkit-scrollbar-thumb{background:#3B4E78;border-radius:9px}
+.grp{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;padding:14px 10px 8px;background:linear-gradient(var(--pn) 70%,transparent);font:800 .8rem "Bricolage Grotesque",sans-serif;color:var(--ticket)}
+.grp::after{content:"";flex:1;border-top:2px dashed rgba(255,255,255,.17)}
+.grp i{order:2;font-style:normal;font-weight:600;color:#8FA0BE}
+.opt{position:relative;display:flex;align-items:center;gap:13px;padding:9px 10px;margin:2px 0;border-radius:15px;cursor:pointer;transition:background .12s}
+.opt.act{background:rgba(255,255,255,.1)}
+.opt.act::before{content:"";position:absolute;left:-8px;top:50%;width:6px;height:56%;transform:translateY(-50%);background:var(--ticket);border-radius:0 6px 6px 0}
+.opt[aria-selected=true]{background:rgba(255,197,61,.13);box-shadow:inset 0 0 0 1.5px rgba(255,197,61,.6)}
+.opt .av{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font:800 .98rem "Bricolage Grotesque",sans-serif;color:#fff;letter-spacing:.02em;background:linear-gradient(135deg,hsl(var(--h) 68% 54%),hsl(calc(var(--h) + 35) 72% 38%));box-shadow:inset 0 -4px 0 rgba(0,0,0,.2),0 4px 10px -4px rgba(0,0,0,.5)}
+.opt .tx{flex:1;min-width:0}
+.opt .nm{font:700 1.02rem/1.2 "Bricolage Grotesque",sans-serif;color:#fff}
+.opt .ct{display:flex;align-items:center;gap:5px;margin-top:3px;font-size:.85rem;color:#9AABC7}
+.opt .ct svg{flex:none;opacity:.8}
+.opt mark{background:var(--ticket);color:var(--ink);border-radius:4px;padding:0 2px}
+.opt .tg{flex:none;display:inline-flex;align-items:center;gap:6px;font:700 .74rem "Source Sans 3",sans-serif;padding:3px 10px;border-radius:99px}
+.opt .tg::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.opt .tg.pub{background:rgba(45,212,191,.16);color:#5EEAD4}
+.opt .tg.pri{background:rgba(255,255,255,.1);color:#CBD6E8}
+.opt .ok{flex:none;width:24px;height:24px;padding:4px;border-radius:50%;background:var(--ticket);color:var(--ink)}
+.vacio{padding:32px 16px;text-align:center;color:#AFBCD3}
+.vacio b{display:block;font:800 1.1rem "Bricolage Grotesque",sans-serif;color:#fff;margin-bottom:4px}
+.pie{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;font-size:.82rem;color:#8FA0BE;border-top:1px solid rgba(255,255,255,.09);background:rgba(0,0,0,.2)}
+.pie kbd{font:700 .75rem "Source Sans 3",sans-serif;background:rgba(255,255,255,.12);color:#E8EEF8;border-radius:6px;padding:1px 7px;margin:0 2px}
+@media (max-width:560px){.opt .tg{display:none}.pie .hint{display:none}}
+@media (prefers-reduced-motion:reduce){.panel:not([hidden]){animation:none}}
+.uni a{background:var(--ink);color:#fff!important;padding:10px 16px;border-radius:12px;text-decoration:none;font-weight:600}
+.uni a:hover{background:#243656}
+nav button{border-radius:0 0 14px 14px;transition:background .15s,color .15s}
+nav button:hover{background:#cfd9e6}nav button[aria-selected=true]:hover{background:var(--ticket)}
+.card{border-radius:14px}
+.btn{transition:transform .12s,box-shadow .12s}.btn:hover{transform:translateY(-1px);box-shadow:0 3px 0 rgba(20,33,61,.25)}
+select{appearance:none;-webkit-appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2314213D' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M3 5l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 12px center;padding-right:36px!important;border-width:2px!important;border-radius:10px!important;font-weight:600;cursor:pointer}
+.msg{border-radius:14px}
+#chat{scrollbar-width:thin}
+@media (prefers-reduced-motion:no-preference){.turno{transition:transform .3s}.turno:hover{transform:rotate(2deg)}}
+</style>
+</head>
+<body>
+<header><div class="wrap hero"><div class="hl">
+  <span class="turno">Turno 001</span>
+  <h1>Ventanilla</h1>
+  <p>Certificados, homologaciones y citas de bienestar en un solo lugar. Sabe qué llevar, en qué va tu trámite y cuándo es tu cita, sin hacer fila.</p>
+  <div class="stats"><span><b id="nUni">0</b> universidades</span><span><b>3</b> servicios en una app</span><span><b>0</b> filas</span></div>
+</div>
+<div class="ticket" aria-hidden="true"><div class="tk-top">Tu turno</div><div class="tk-num">A-042</div><div class="tk-uni" id="tkUni"></div><div class="tk-foot">Sin filas. Sin ir 3 veces.</div></div>
+</div></header>
+
+<div class="uni"><div class="wrap">
+<div class="combo" id="combo">
+  <label for="uniQ">Tu universidad</label>
+  <div class="field"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+  <input type="text" id="uniQ" role="combobox" aria-expanded="false" aria-controls="uniPanel" aria-autocomplete="list" placeholder="Busca tu universidad..." autocomplete="off"><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div>
+  <div class="panel" id="uniPanel" hidden>
+    <div class="filtros" id="filtros"><button type="button" data-f="Todas" class="on">Todas<span class="n"></span></button><button type="button" data-f="Pública">Públicas<span class="n"></span></button><button type="button" data-f="Privada">Privadas<span class="n"></span></button></div>
+    <div class="opts" id="opts" role="listbox"></div>
+    <div class="pie" id="pie"></div>
+  </div>
+</div>
+<a id="uniLink" href="#" target="_blank" rel="noopener">Ir al sitio oficial</a></div></div>
+<nav role="tablist" aria-label="Secciones">
+  <button role="tab" id="t-guia" aria-selected="true" data-tab="guia">Asistente</button>
+  <button role="tab" id="t-tramites" aria-selected="false" data-tab="tramites">Mis trámites</button>
+  <button role="tab" id="t-citas" aria-selected="false" data-tab="citas">Citas de bienestar</button>
+</nav>
+
+<main>
+<!-- ASISTENTE -->
+<section id="guia" role="tabpanel" aria-labelledby="t-guia">
+  <h2>¿Qué trámite necesitas?</h2>
+  <p>Pregunta con tus palabras. Te digo requisitos, costo, tiempo y oficina, y marcas lo que ya tienes.</p>
+  <div class="chips" id="chips"></div>
+  <div class="card"><div id="chat" aria-live="polite"></div>
+    <form class="row" id="chatForm">
+      <input type="text" id="q" placeholder="Ej: ¿qué necesito para un certificado de notas?" aria-label="Escribe tu pregunta" autocomplete="off">
+      <button class="btn" type="submit">Preguntar</button>
+    </form>
+  </div>
+</section>
+
+<!-- MIS TRAMITES -->
+<section id="tramites" role="tabpanel" aria-labelledby="t-tramites" hidden>
+  <h2>Mis trámites</h2>
+  <p>Mira en qué paso va cada solicitud. Aquí puedes simular el avance para la demostración.</p>
+  <div class="card">
+    <label class="lbl" for="nuevoTipo" style="margin-top:0">Nueva solicitud</label>
+    <form class="row" id="nuevoForm" style="margin-top:0">
+      <select id="nuevoTipo"></select>
+      <button class="btn" type="submit">Solicitar</button>
+    </form>
+  </div>
+  <div id="lista"></div>
+</section>
+
+<!-- CITAS -->
+<section id="citas" role="tabpanel" aria-labelledby="t-citas" hidden>
+  <h2>Citas de bienestar</h2>
+  <p>Elige día y hora. Recibes confirmación y puedes cancelar o reprogramar cuando quieras.</p>
+  <div class="card">
+    <span class="lbl" style="margin-top:0">Día</span>
+    <div class="days" id="days"></div>
+    <span class="lbl">Hora</span>
+    <div class="slots" id="slots"></div>
+    <label class="lbl" for="servicio">Servicio</label>
+    <select id="servicio">
+      <option>Psicología</option><option>Orientación académica</option><option>Trabajo social</option><option>Salud y enfermería</option>
+    </select>
+    <label class="lbl" style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" id="anon"> Reservar de forma discreta (sin mostrar el servicio en mi lista)</label>
+    <p style="margin-top:14px"><button class="btn" id="reservar" type="button">Reservar cita</button> <span id="resMsg" class="meta" role="status"></span></p>
+  </div>
+  <h3 style="margin:22px 0 10px">Mis citas</h3>
+  <div id="misCitas"></div>
+</section>
+
+</main>
+
+<script>
+/* ---------- Utilidades ---------- */
+const $=s=>document.querySelector(s);
+const norm=t=>t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- Universidades (edita aquí: costos[id] = {v:"texto", ok:true/false}) ---------- */
+const UNIS=[
+ {id:"unal",n:"Universidad Nacional de Colombia",c:"Bogotá, Medellín, Manizales, Palmira y otras",t:"Pública",web:"https://unal.edu.co",reg:"Registro y Matrícula de tu sede (trámites en el SIA)",
+  costos:{"cert-notas":{v:"Desde $9.100 pregrado activo (1 gratis por semestre); $30.300 graduados. Tarifa 2021, sede Palmira",ok:false},"cert-estudio":{v:"Desde $9.100 pregrado activo (1 gratis por semestre). Tarifa 2021, sede Palmira",ok:false}}},
+ {id:"universidad-distrital-francisco-jose-de-",n:"Universidad Distrital Francisco José de Caldas",c:"Bogotá",t:"Pública",web:"https://www.udistrital.edu.co",reg:"Registro Académico"},
+ {id:"universidad-pedagogica-nacional",n:"Universidad Pedagógica Nacional",c:"Bogotá",t:"Pública",web:"https://www.pedagogica.edu.co",reg:"Registro Académico"},
+ {id:"universidad-colegio-mayor-de-cundinamarc",n:"Universidad Colegio Mayor de Cundinamarca",c:"Bogotá",t:"Pública",web:"https://www.ucundinamarca.edu.co",reg:"Registro Académico"},
+ {id:"universidad-militar-nueva-granada-umng",n:"Universidad Militar Nueva Granada (UMNG)",c:"Bogotá",t:"Pública",web:"https://www.umng.edu.co",reg:"Registro Académico"},
+ {id:"universidad-nacional-abierta-y-a-distanc",n:"Universidad Nacional Abierta y a Distancia (UNAD)",c:"Bogotá",t:"Pública",web:"https://www.unad.edu.co",reg:"Registro Académico"},
+ {id:"escuela-superior-de-administracion-publi",n:"Escuela Superior de Administración Pública (ESAP)",c:"Bogotá",t:"Pública",web:"https://www.esap.edu.co",reg:"Registro Académico"},
+ {id:"escuela-tecnologica-instituto-tecnico-ce",n:"Escuela Tecnológica Instituto Técnico Central",c:"Bogotá",t:"Pública",web:"",reg:"Registro Académico"},
+ {id:"universidad-de-cundinamarca",n:"Universidad de Cundinamarca",c:"Bogotá",t:"Pública",web:"https://www.ucundinamarca.edu.co",reg:"Registro Académico"},
+ {id:"universidad-de-pamplona-up",n:"Universidad de Pamplona (UP)",c:"Bogotá",t:"Pública",web:"https://www.unipamplona.edu.co",reg:"Registro Académico"},
+ {id:"centro-de-educacion-militar",n:"Centro de Educación Militar",c:"Bogotá",t:"Pública",web:"",reg:"Registro Académico"},
+ {id:"escuela-de-inteligencia-y-contraintelige",n:"Escuela de Inteligencia y Contrainteligencia Brigadier General Ricardo Charry Solano",c:"Bogotá",t:"Pública",web:"",reg:"Registro Académico"},
+ {id:"corporacion-centro-de-nuestra-senora-de-",n:"Corporación Centro de Nuestra Señora de las Mercedes",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"colegio-de-estudios-superiores-de-admini",n:"Colegio de Estudios Superiores de Administración (CESA)",c:"Bogotá",t:"Privada",web:"https://www.cesa.edu.co",reg:"Registro Académico"},
+ {id:"universidad-del-rosario",n:"Universidad del Rosario",c:"Bogotá",t:"Privada",web:"https://www.urosario.edu.co",reg:"Registro Académico"},
+ {id:"escuela-colombiana-de-ingenieria-julio-g",n:"Escuela Colombiana de Ingeniería Julio Garavito",c:"Bogotá",t:"Privada",web:"https://www.escuelaing.edu.co",reg:"Registro Académico"},
+ {id:"escuela-colombiana-de-carreras-industria",n:"Escuela Colombiana de Carreras Industriales (ECCI)",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"escuela-de-artes-y-letras",n:"Escuela de Artes y Letras",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"politecnico-grancolombiano",n:"Politécnico Grancolombiano",c:"Bogotá",t:"Privada",web:"https://www.poli.edu.co",reg:"Registro Académico"},
+ {id:"corporacion-internacional-para-el-desarr",n:"Corporación Internacional para el Desarrollo Educativo (CIDE)",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"universidad-de-america",n:"Universidad de América",c:"Bogotá",t:"Privada",web:"https://www.uamerica.edu.co",reg:"Registro Académico"},
+ {id:"universidad-de-ciencias-aplicadas-y-ambi",n:"Universidad de Ciencias Aplicadas y Ambientales (UDCA)",c:"Bogotá",t:"Privada",web:"https://www.udca.edu.co",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-juan-n-corpas",n:"Fundación Universitaria Juan N. Corpas",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-del-area-andina",n:"Fundación Universitaria del Área Andina",c:"Bogotá",t:"Privada",web:"https://www.areandina.edu.co",reg:"Registro Académico"},
+ {id:"universidad-de-la-sabana",n:"Universidad de La Sabana",c:"Bogotá",t:"Privada",web:"https://www.unisabana.edu.co",reg:"Registro Académico"},
+ {id:"corporacion-eductiva-alexander-von-humbo",n:"Corporación Eductiva Alexander Von Humboldt",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"corporacion-unificada-nacional-de-educac",n:"Corporación Unificada Nacional de Educación Superior (CUN)",c:"Bogotá",t:"Privada",web:"https://www.cun.edu.co",reg:"Registro Académico"},
+ {id:"corporacion-universitaria-republicana",n:"Corporación Universitaria Republicana",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"corporacion-tecnologica-de-bogota",n:"Corporación Tecnológica de Bogotá",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"corporacion-tecnologica-industrial-colom",n:"Corporación Tecnológica Industrial Colombiana",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"escuela-militar-de-cadetes-general-jose-",n:"Escuela Militar de Cadetes General José María Córdova",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-agraria-de-colom",n:"Fundación Universitaria Agraria de Colombia (Uniagraria)",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-colombo-germana",n:"Fundación Colombo Germana",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-cafam",n:"Fundación Universitaria CAFAM",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-konrad-lorenz",n:"Fundación Universitaria Konrad Lorenz",c:"Bogotá",t:"Privada",web:"https://www.konradlorenz.edu.co",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-los-libertadores",n:"Fundación Universitaria Los Libertadores",c:"Bogotá",t:"Privada",web:"https://www.ulibertadores.edu.co",reg:"Registro Académico"},
+ {id:"politecnico-colombo-andino",n:"Politécnico Colombo Andino",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"corporacion-universal-de-investigacion-y",n:"Corporación Universal de Investigación y Tecnología CORUNIVERSITEC",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"corporacion-universitaria-de-ciencia-y-d",n:"Corporación Universitaria de Ciencia y Desarrollo",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"corporacion-universitaria-ideas",n:"Corporación Universitaria IDEAS",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"corporacion-universitaria-minuto-de-dios",n:"Corporación Universitaria Minuto de Dios (UNIMINUTO)",c:"Bogotá",t:"Privada",web:"https://www.uniminuto.edu",reg:"Registro Académico"},
+ {id:"policia-nacional-de-colombia",n:"Policía Nacional de Colombia",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"escuela-militar-de-aviacion-marco-fidel-",n:"Escuela Militar de Aviación Marco Fidel Suárez",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"escuela-superior-de-guerra",n:"Escuela Superior de Guerra",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-de-educacion-superior-nueva-am",n:"Fundación de Educación Superior Nueva América",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"escuela-colombiana-de-rehabilitacion",n:"Escuela Colombiana de Rehabilitación",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-interamericana-tecnica",n:"Fundación Interamericana Técnica",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-politecnica-corpo",n:"Fundación Politécnica CORPO",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-cervantes-san-ag",n:"Fundación Universitaria Cervantes San Agustín (UNICERVANTES)",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-de-ciencias-de-l",n:"Fundación Universitaria de Ciencias de la Salud",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-san-martin",n:"Fundación Universitaria San Martín",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"institucion-universitaria-colegios-de-co",n:"Institución Universitaria Colegios de Colombia (UNICOC)",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"universitaria-de-colombia",n:"Universitaria de Colombia",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"instituto-caro-y-cuervo",n:"Instituto Caro y Cuervo",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"instituto-icsef",n:"Instituto ICSEF",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"universidad-de-san-buenaventura-usb",n:"Universidad de San Buenaventura (USB)",c:"Bogotá",t:"Privada",web:"https://www.usb.edu.co",reg:"Registro Académico"},
+ {id:"universidad-del-sinu-unisinu",n:"Universidad del Sinú (UNISINU)",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"universidad-pontificia-bolivariana-upb",n:"Universidad Pontificia Bolivariana (UPB)",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-de-educacion-superior-esatec",n:"Fundación de Educación Superior ESATEC",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"universidad-antonio-narino-uan",n:"Universidad Antonio Nariño (UAN)",c:"Bogotá",t:"Privada",web:"https://www.uan.edu.co",reg:"Registro Académico"},
+ {id:"institucion-de-educacion-superior-ce-art",n:"Institución de Educación Superior CE-ART",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-monserrate",n:"Fundación Universitaria Monserrate",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-panamericana",n:"Fundación Universitaria Panamericana",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-san-alfonso",n:"Fundación Universitaria San Alfonso",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-sanitas",n:"Fundación Universitaria Sanitas",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"corporacion-de-estudios-superiores-salam",n:"Corporación de Estudios Superiores Salamandra",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"corporacion-universitaria-inpahu",n:"Corporación Universitaria INPAHU",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"politecnico-icaft",n:"Politécnico ICAFT",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"politecnico-internacional",n:"Politécnico Internacional",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"universidad-autonoma-de-colombia-fuac",n:"Universidad Autónoma de Colombia (FUAC)",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"universidad-libre",n:"Universidad Libre",c:"Bogotá",t:"Privada",web:"https://www.unilibre.edu.co",reg:"Registro Académico"},
+ {id:"universidad-manuela-beltran-umb",n:"Universidad Manuela Beltrán (UMB)",c:"Bogotá",t:"Privada",web:"https://www.umb.edu.co",reg:"Registro Académico"},
+ {id:"universidad-la-gran-colombia",n:"Universidad La Gran Colombia",c:"Bogotá",t:"Privada",web:"https://www.ugc.edu.co",reg:"Registro Académico"},
+ {id:"universidad-ean",n:"Universidad EAN",c:"Bogotá",t:"Privada",web:"https://www.universidadean.edu.co",reg:"Registro Académico"},
+ {id:"universidad-incca-de-colombia-unincca",n:"Universidad Incca de Colombia (UNINCCA)",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"universidad-central",n:"Universidad Central",c:"Bogotá",t:"Privada",web:"https://www.ucentral.edu.co",reg:"Registro Académico"},
+ {id:"universidad-de-los-andes",n:"Universidad de los Andes",c:"Bogotá",t:"Privada",web:"https://www.uniandes.edu.co",reg:"Registro Académico"},
+ {id:"universidad-de-la-salle",n:"Universidad de La Salle",c:"Bogotá",t:"Privada",web:"https://www.lasalle.edu.co",reg:"Registro Académico"},
+ {id:"universidad-externado-de-colombia",n:"Universidad Externado de Colombia",c:"Bogotá",t:"Privada",web:"https://www.uexternado.edu.co",reg:"Registro Académico"},
+ {id:"universidad-el-bosque",n:"Universidad El Bosque",c:"Bogotá",t:"Privada",web:"https://www.unbosque.edu.co",reg:"Registro Académico"},
+ {id:"universidad-piloto-de-colombia",n:"Universidad Piloto de Colombia",c:"Bogotá",t:"Privada",web:"https://www.unipiloto.edu.co",reg:"Registro Académico"},
+ {id:"universidad-catolica-de-colombia",n:"Universidad Católica de Colombia",c:"Bogotá",t:"Privada",web:"https://www.ucatolica.edu.co",reg:"Registro Académico"},
+ {id:"pontificia-universidad-javeriana",n:"Pontificia Universidad Javeriana",c:"Bogotá",t:"Privada",web:"https://www.javeriana.edu.co",reg:"Registro Académico"},
+ {id:"universidad-de-bogota-jorge-tadeo-lozano",n:"Universidad de Bogotá Jorge Tadeo Lozano",c:"Bogotá",t:"Privada",web:"https://www.utadeo.edu.co",reg:"Registro Académico"},
+ {id:"corporacion-politecnico-de-cundinamarca",n:"Corporación Politécnico de Cundinamarca",c:"Bogotá",t:"Privada",web:"https://www.ucundinamarca.edu.co",reg:"Registro Académico"},
+ {id:"universitaria-agustiniana",n:"Universitaria Agustiniana",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"imf-business-school",n:"IMF Business School",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"corporacion-de-educacion-superior-ises",n:"Corporación de Educación Superior ISES",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"corporacion-tecnica-de-colombia",n:"Corporación Técnica de Colombia",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"corporacion-universitaria-unitec",n:"Corporación Universitaria UNITEC",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"corporacion-universitaria-cenda",n:"Corporación Universitaria CENDA",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"corporacion-universitaria-iberoamericana",n:"Corporación Universitaria Iberoamericana",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"escuela-de-ingenieros-militares",n:"Escuela de Ingenieros Militares",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"escuela-de-logistica",n:"Escuela de Logística",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"escuela-de-ciencias-empresariales",n:"Escuela de Ciencias Empresariales",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"escuela-superior-de-oftalmologia",n:"Escuela Superior de Oftalmología",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-cedinpro",n:"Fundación CEDINPRO",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"escuela-colombiana-de-hoteleria-y-turism",n:"Escuela Colombiana de Hotelería y Turismo (ECOTET)",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"instituto-superior-de-carreras-tecnicas-",n:"Instituto Superior de Carreras Técnicas (INSUTEC)",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-san-mateo",n:"Fundación Universitaria San Mateo",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-tecnologica-autonoma-de-bogota",n:"Fundación Tecnológica Autónoma de Bogotá",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-cieo",n:"Fundación Universitaria CIEO",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"universidad-catolica-luis-amigo",n:"Universidad Católica Luis Amigó",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"fundacion-universitaria-empresarial-de-l",n:"Fundación Universitaria Empresarial de la Cámara de Comercio de Bogotá",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"institucion-universitaria-colombo-americ",n:"Institución Universitaria Colombo Americana (ÚNICA)",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"institucion-universitaria-latina",n:"Institución Universitaria Latina",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"instituto-militar-aeronautico",n:"Instituto Militar Aeronáutico",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"politecnico-santafe-de-bogota",n:"Politécnico Santafé de Bogotá",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"union-americana-de-educacion-superior",n:"Unión Americana de Educación Superior",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"tecnologica-del-sur",n:"Tecnológica del Sur",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"universidad-ces",n:"Universidad CES",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"universidad-de-santander-udes",n:"Universidad de Santander (UDES)",c:"Bogotá",t:"Privada",web:"https://www.udes.edu.co",reg:"Registro Académico"},
+ {id:"corporacion-universitaria-remington",n:"Corporación Universitaria Remington",c:"Bogotá",t:"Privada",web:"",reg:"Registro Académico"},
+ {id:"universidad-santo-tomas-usta",n:"Universidad Santo Tomás (USTA)",c:"Bogotá",t:"Privada",web:"https://www.usta.edu.co",reg:"Registro Académico"},
+ {id:"universidad-cooperativa-de-colombia-ucc",n:"Universidad Cooperativa de Colombia (UCC)",c:"Bogotá",t:"Privada",web:"https://www.ucc.edu.co",reg:"Registro Académico"},
+ {id:"servicio-nacional-de-aprendizaje-sena",n:"Servicio Nacional de Aprendizaje (SENA)",c:"Bogotá",t:"Privada",web:"https://www.sena.edu.co",reg:"Registro Académico"},
+ {id:"universidad-sergio-arboleda",n:"Universidad Sergio Arboleda",c:"Bogotá",t:"Privada",web:"https://www.usergioarboleda.edu.co",reg:"Registro Académico"},
+ {id:"universidad-de-antioquia",n:"Universidad de Antioquia",c:"Medellín",t:"Pública",web:"https://www.udea.edu.co",reg:"Departamento de Admisiones y Registro (Portal Universitario)"},
+ {id:"universidad-del-valle",n:"Universidad del Valle",c:"Cali",t:"Pública",web:"https://www.univalle.edu.co",reg:"Registro Académico"},
+ {id:"universidad-industrial-de-santander",n:"Universidad Industrial de Santander",c:"Bucaramanga",t:"Pública",web:"https://www.uis.edu.co",reg:"Registro Académico"},
+ {id:"universidad-del-atlantico",n:"Universidad del Atlántico",c:"Barranquilla",t:"Pública",web:"https://www.uniatlantico.edu.co",reg:"Admisiones y Registro"},
+ {id:"universidad-pedagogica-y-tecnologica-de-",n:"Universidad Pedagógica y Tecnológica de Colombia (UPTC)",c:"Tunja",t:"Pública",web:"https://www.uptc.edu.co",reg:"Admisiones y Registro"},
+ {id:"universidad-del-cauca",n:"Universidad del Cauca",c:"Popayán",t:"Pública",web:"https://www.unicauca.edu.co",reg:"Admisiones, Registro y Control Académico"},
+ {id:"universidad-de-cartagena",n:"Universidad de Cartagena",c:"Cartagena de Indias",t:"Pública",web:"https://www.unicartagena.edu.co",reg:"Admisiones y Registro"},
+ {id:"universidad-eafit",n:"Universidad EAFIT",c:"Medellín",t:"Privada",web:"https://www.eafit.edu.co",reg:"Admisiones y Registro"},
+ {id:"universidad-del-norte",n:"Universidad del Norte",c:"Barranquilla",t:"Privada",web:"https://www.uninorte.edu.co",reg:"Registro Académico"},
+ {id:"universidad-icesi",n:"Universidad Icesi",c:"Cali",t:"Privada",web:"https://www.icesi.edu.co",reg:"Registro Académico"}
+];
+/* Trámites comunes. {reg} se reemplaza por la oficina de cada universidad */
+const KB=[
+ {id:"cert-notas",nombre:"Certificado de notas",keys:["certificado de notas","notas","calificaciones","historial"],
+  req:["Documento de identidad","Solicitud en el portal estudiantil","Recibo de pago (si tiene costo)","Estar al día en biblioteca y tesorería"],donde:"{reg}"},
+ {id:"cert-estudio",nombre:"Certificado de estudio",keys:["certificado de estudio","constancia","certificado estudiantil","soy estudiante","certificado"],
+  req:["Documento de identidad","Matrícula vigente","Solicitud en el portal estudiantil"],donde:"Portal estudiantil o {reg}"},
+ {id:"homologacion",nombre:"Homologación o transferencia de materias",keys:["homologacion","homologar","convalidacion","transferencia","cambio de universidad"],
+  req:["Certificado de notas de la institución anterior","Contenidos programáticos de las materias, sellados","Plan de estudios (pensum) anterior","Carta de solicitud al director del programa","Documento de identidad"],donde:"Dirección de tu programa y {reg}"},
+ {id:"paz-y-salvo",nombre:"Paz y salvo",keys:["paz y salvo","pazysalvo","deudas","biblioteca","grado"],
+  req:["Documento de identidad","Sin préstamos pendientes en biblioteca","Sin saldos en tesorería o cartera"],donde:"Tesorería, Biblioteca y {reg}"},
+ {id:"cancelacion",nombre:"Cancelación de materias",keys:["cancelar materia","cancelacion","retirar materia","retiro"],
+  req:["Solicitud en el portal antes de la fecha límite del calendario académico","Aprobación del director de programa (según reglamento estudiantil)"],donde:"Portal estudiantil y Dirección de programa"},
+ {id:"bienestar",nombre:"Cita con Bienestar",keys:["bienestar","psicologia","psicologo","cita","orientacion","salud mental","trabajo social"],
+  req:["Carné estudiantil o documento de identidad","Elegir el servicio (psicología, orientación, trabajo social)"],donde:"Bienestar Universitario. Reserva en la pestaña Citas de bienestar"}
+];
+const SUGERENCIAS=["Certificado de notas","Homologación","Paz y salvo","Cancelar una materia","Cita con bienestar"];
+let uniId=store.get("vt_uni","unal");
+const uni=()=>UNIS.find(u=>u.id===uniId)||UNIS[0];
+const donde=k=>k.donde.replace("{reg}",uni().reg);
+function costoHTML(k){
+  const c=(uni().costos||{})[k.id];
+  if(c)return esc(c.v)+` <span class="badge ${c.ok?"ok":"ver"}">${c.ok?"Verificado":"Confirma el valor"}</span>`;
+  return `Consulta el valor vigente en el sitio oficial <span class="badge ver">Sin verificar</span>`;
+}
+
+/* ---------- Asistente ---------- */
+const chat=$("#chat");
+function addMsg(html,who){const d=document.createElement("div");d.className="msg "+who;d.innerHTML=html;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;return d}
+function buscar(texto){
+  const t=norm(texto);let mejor=null,punt=0;
+  KB.forEach(k=>{let p=0;k.keys.forEach(w=>{if(t.includes(norm(w)))p+=w.length});if(p>punt){punt=p;mejor=k}});
+  return mejor;
+}
+function respuesta(k){
+  const items=k.req.map((r,i)=>`<li><label><input type="checkbox" data-r="${i}"> <span>${esc(r)}</span></label></li>`).join("");
+  const d=addMsg(`<strong>${esc(k.nombre)}</strong> en ${esc(uni().n)}<ul>${items}</ul>
+    <div class="meta">Costo: ${costoHTML(k)}<br>Dónde: ${esc(donde(k))}<br>El plazo lo confirma la universidad al radicar la solicitud.</div>
+    <p class="falta" style="margin:8px 0 0">Te faltan ${k.req.length} documentos.</p>
+    <p style="margin:8px 0 0"><button class="btn alt" data-solicitar="${k.id}" type="button">Iniciar este trámite</button></p>`,"b");
+  const f=d.querySelector(".falta");
+  d.querySelectorAll("input").forEach(c=>c.addEventListener("change",()=>{
+    const n=k.req.length-d.querySelectorAll("input:checked").length;
+    f.textContent=n===0?"Tienes todo. Ya puedes hacer el trámite.":`Te faltan ${n} ${n===1?"documento":"documentos"}.`;
+  }));
+}
+function preguntar(texto){
+  if(!texto.trim())return;
+  addMsg(esc(texto),"u");
+  const k=buscar(texto);
+  if(k)respuesta(k);
+  else addMsg("No encontré ese trámite. Prueba con una de estas opciones: certificado de notas, homologación, paz y salvo, cancelar materia o cita con bienestar.","b");
+}
+$("#chips").innerHTML=SUGERENCIAS.map(s=>`<button class="chip" type="button">${s}</button>`).join("");
+$("#chips").addEventListener("click",e=>{if(e.target.classList.contains("chip"))preguntar(e.target.textContent)});
+$("#chatForm").addEventListener("submit",e=>{e.preventDefault();const i=$("#q");preguntar(i.value);i.value=""});
+chat.addEventListener("click",e=>{const id=e.target.dataset.solicitar;if(id){crearTramite(id);goTab("tramites")}});
+
+
+/* ---------- Mis trámites ---------- */
+const PASOS=["Solicitado","En revisión","Listo para recoger"];
+let tramites=store.get("vt_tramites",null);
+if(!tramites){tramites=[{n:"T-0412",id:"cert-notas",u:"unal",paso:1,fecha:"2026-10-12"}];store.set("vt_tramites",tramites)}
+$("#nuevoTipo").innerHTML=KB.filter(k=>k.id!=="bienestar").map(k=>`<option value="${k.id}">${k.nombre}</option>`).join("");
+function crearTramite(id){
+  const n="T-"+String(Math.floor(Math.random()*9000)+1000);
+  tramites.unshift({n,id,u:uniId,paso:0,fecha:new Date().toISOString().slice(0,10)});
+  store.set("vt_tramites",tramites);renderTramites();
+}
+function renderTramites(){
+  const box=$("#lista");
+  if(!tramites.length){box.innerHTML='<p class="empty">Aún no tienes trámites. Pide uno arriba o pregúntale al asistente.</p>';return}
+  box.innerHTML=tramites.map((t,i)=>{
+    const k=KB.find(x=>x.id===t.id);
+        const listo=t.paso>=2;
+    return `<div class="card stub"><div>
+      <div class="num">${t.n}</div><strong>${esc(k.nombre)}</strong>
+      <div class="meta">${esc((UNIS.find(x=>x.id===t.u)||UNIS[0]).n)} · Solicitado el ${t.fecha}</div>
+      <div class="steps">${PASOS.map((p,j)=>`<div class="step ${j<=t.paso?"on":""}">${p}</div>`).join("")}</div>
+      ${listo?`<span class="done">Listo. Recógelo en: ${esc(donde(k))}</span>`:""}
+    </div><div style="display:flex;flex-direction:column;gap:6px;align-self:start">
+      ${listo?"":`<button class="btn alt" data-adv="${i}" type="button">Simular avance</button>`}
+      <button class="btn danger" data-del="${i}" type="button">Quitar</button></div></div>`}).join("");
+}
+$("#lista").addEventListener("click",e=>{
+  const a=e.target.dataset.adv,d=e.target.dataset.del;
+  if(a!==undefined){tramites[a].paso++;}
+  else if(d!==undefined){tramites.splice(d,1);}
+  else return;
+  store.set("vt_tramites",tramites);renderTramites();
+});
+$("#nuevoForm").addEventListener("submit",e=>{e.preventDefault();crearTramite($("#nuevoTipo").value)});
+
+/* ---------- Citas ---------- */
+const HORAS=["8:00","9:00","10:00","11:00","14:00","15:00","16:00","17:00"];
+let citas=store.get("vt_citas",[]);
+const OCUPADAS=h=>(h.charCodeAt(0)+h.length)%3===0; // horas "ya tomadas" de ejemplo
+function proximosDias(){
+  const out=[],d=new Date();
+  while(out.length<5){d.setDate(d.getDate()+1);if(d.getDay()!==0&&d.getDay()!==6)out.push(new Date(d))}
+  return out;
+}
+const DIAS=proximosDias();
+const iso=d=>d.toISOString().slice(0,10);
+const etiqueta=d=>d.toLocaleDateString("es-CO",{weekday:"short",day:"numeric",month:"short"});
+let diaSel=iso(DIAS[0]),horaSel=null;
+function ocupado(dia,h){return citas.some(c=>c.dia===dia&&c.hora===h)||(OCUPADAS(dia.slice(-2)+h)&&true)}
+function renderDias(){
+  $("#days").innerHTML=DIAS.map(d=>`<button class="day" type="button" data-d="${iso(d)}" aria-pressed="${iso(d)===diaSel}">${etiqueta(d)}</button>`).join("");
+}
+function renderSlots(){
+  $("#slots").innerHTML=HORAS.map(h=>`<button class="slot" type="button" data-h="${h}" ${ocupado(diaSel,h)?"disabled":""} aria-pressed="${h===horaSel}">${h}</button>`).join("");
+}
+function renderCitas(){
+  const b=$("#misCitas");
+  if(!citas.length){b.innerHTML='<p class="empty">No tienes citas. Elige un día y una hora arriba.</p>';return}
+  b.innerHTML=citas.map((c,i)=>`<div class="card" style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+    <div><strong>${c.dia} a las ${c.hora}</strong><div class="meta">${c.anon?"Cita de Bienestar":esc(c.servicio)}</div></div>
+    <button class="btn danger" data-c="${i}" type="button">Cancelar</button></div>`).join("");
+}
+$("#days").addEventListener("click",e=>{const d=e.target.dataset.d;if(d){diaSel=d;horaSel=null;renderDias();renderSlots()}});
+$("#slots").addEventListener("click",e=>{const h=e.target.dataset.h;if(h){horaSel=h;renderSlots()}});
+$("#reservar").addEventListener("click",()=>{
+  const m=$("#resMsg");
+  if(!horaSel){m.textContent="Elige una hora primero.";return}
+  citas.push({dia:diaSel,hora:horaSel,servicio:$("#servicio").value,anon:$("#anon").checked});
+  citas.sort((a,b)=>(a.dia+a.hora).localeCompare(b.dia+b.hora));
+  store.set("vt_citas",citas);
+  m.textContent=`Cita confirmada para el ${diaSel} a las ${horaSel}. Te enviaremos un recordatorio.`;
+  horaSel=null;renderSlots();renderCitas();
+});
+$("#misCitas").addEventListener("click",e=>{const c=e.target.dataset.c;if(c!==undefined){citas.splice(c,1);store.set("vt_citas",citas);renderSlots();renderCitas()}});
+
+/* ---------- Universidad ---------- */
+const uq=$("#uniQ"),combo=$("#combo"),panel=$("#uniPanel"),opts=$("#opts");
+let filtro="Todas",activo=0,visibles=[];
+$("#nUni").textContent=UNIS.length;
+const sigla=n=>{const stop=["Universidad","Fundación","Corporación","Escuela","Institución","Pontificia","Politécnico","Servicio","Instituto","Centro","Colegio","Universitaria"];
+  const w=n.replace(/\(.*?\)/g,"").split(/\s+/).filter(x=>/^[A-ZÁÉÍÓÚÑ]/.test(x)&&!stop.includes(x));return (w.slice(0,2).map(x=>x[0]).join("")||n[0]).toUpperCase()};
+const resaltar=(n,q)=>{const i=q?norm(n).indexOf(q):-1;return i<0?esc(n):esc(n.slice(0,i))+"<mark>"+esc(n.slice(i,i+q.length))+"</mark>"+esc(n.slice(i+q.length))};
+const grupo=u=>u.c.startsWith("Bogotá")?"Bogotá · "+(u.t==="Pública"?"Públicas":"Privadas"):"Otras ciudades";
+const PIN='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+const hue=id=>{let h=0;for(const ch of id)h=(h*31+ch.charCodeAt(0))%360;return h};
+function pintar(q){
+  q=norm(q||"").trim();
+  const coin=UNIS.filter(u=>!q||norm(u.n+" "+u.c).includes(q));
+  document.querySelectorAll("#filtros button").forEach(b=>{const f=b.dataset.f;b.querySelector(".n").textContent=coin.filter(u=>f==="Todas"||u.t===f).length});
+  visibles=coin.filter(u=>filtro==="Todas"||u.t===filtro);
+  const orden=["Bogotá · Públicas","Bogotá · Privadas","Otras ciudades"];
+  visibles.sort((a,b)=>orden.indexOf(grupo(a))-orden.indexOf(grupo(b)));
+  if(activo>=visibles.length)activo=0;
+  let html="",g="";
+  visibles.forEach((u,i)=>{
+    if(grupo(u)!==g){g=grupo(u);html+=`<div class="grp">${g}<i>${visibles.filter(x=>grupo(x)===g).length}</i></div>`}
+    const pub=u.t==="Pública";
+    html+=`<div class="opt ${i===activo?"act":""}" role="option" id="o${i}" data-i="${i}" aria-selected="${u.id===uniId}">
+      <span class="av" style="--h:${hue(u.id)}">${esc(sigla(u.n))}</span>
+      <span class="tx"><div class="nm">${resaltar(u.n,q)}</div><div class="ct">${PIN}<span>${esc(u.c)}</span></div></span>
+      <span class="tg ${pub?"pub":"pri"}">${u.t}</span>
+      ${u.id===uniId?'<svg class="ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-label="Seleccionada"><path d="M5 12l5 5 9-10"/></svg>':""}</div>`;
+  });
+  opts.innerHTML=html||'<div class="vacio"><b>No encontramos esa universidad</b>Prueba con otra palabra, por ejemplo "libre" o "javeriana".</div>';
+  $("#pie").innerHTML=`<span>${visibles.length} ${visibles.length===1?"resultado":"resultados"}</span><span class="hint"><kbd>↑</kbd><kbd>↓</kbd> moverte <kbd>Enter</kbd> elegir <kbd>Esc</kbd> cerrar</span>`;
+  const a=$("#o"+activo);if(a)a.scrollIntoView({block:"nearest"});
+}
+function abrir(q){panel.hidden=false;combo.classList.add("open");uq.setAttribute("aria-expanded","true");pintar(q)}
+function cerrar(){panel.hidden=true;combo.classList.remove("open");uq.setAttribute("aria-expanded","false");uq.value=uni().n}
+function elegir(i){const u=visibles[i];if(u){setUni(u.id)}cerrar();uq.blur()}
+function saludo(){
+  chat.innerHTML="";
+  $("#uniLink").href=uni().web||("https://www.google.com/search?q="+encodeURIComponent(uni().n+" certificado de notas"));
+  $("#tkUni").textContent=uni().n;uq.value=uni().n;
+  addMsg(`Hola. Estás en <strong>${esc(uni().n)}</strong>. Dime qué trámite necesitas y te explico qué llevar, el costo y dónde hacerlo.`,"b");
+}
+function setUni(id){uniId=id;store.set("vt_uni",id);saludo();renderTramites()}
+uq.addEventListener("focus",()=>{uq.select();activo=Math.max(0,UNIS.findIndex(u=>u.id===uniId));filtro="Todas";document.querySelectorAll("#filtros button").forEach(b=>b.classList.toggle("on",b.dataset.f==="Todas"));abrir("")});
+uq.addEventListener("click",()=>{if(panel.hidden)abrir("")});
+uq.addEventListener("input",()=>{activo=0;abrir(uq.value)});
+uq.addEventListener("keydown",e=>{
+  if(e.key==="ArrowDown"){e.preventDefault();activo=Math.min(activo+1,visibles.length-1);pintar(uq.value===uni().n?"":uq.value)}
+  else if(e.key==="ArrowUp"){e.preventDefault();activo=Math.max(activo-1,0);pintar(uq.value===uni().n?"":uq.value)}
+  else if(e.key==="Enter"){e.preventDefault();elegir(activo)}
+  else if(e.key==="Escape"){cerrar();uq.blur()}
+});
+opts.addEventListener("pointerdown",e=>{e.preventDefault();const o=e.target.closest(".opt");if(o)elegir(+o.dataset.i)});
+$("#filtros").addEventListener("pointerdown",e=>{e.preventDefault();const bt=e.target.closest("button");const f=bt&&bt.dataset.f;if(!f)return;filtro=f;activo=0;
+  document.querySelectorAll("#filtros button").forEach(b=>b.classList.toggle("on",b.dataset.f===f));pintar(uq.value===uni().n?"":uq.value)});
+document.addEventListener("pointerdown",e=>{if(!combo.contains(e.target)&&!panel.hidden)cerrar()});
+saludo();
+
+/* ---------- Pestañas ---------- */
+function goTab(name){
+  document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===name));
+  document.querySelectorAll("main section").forEach(s=>s.hidden=s.id!==name);
+}
+document.querySelector("nav").addEventListener("click",e=>{const t=e.target.dataset.tab;if(t)goTab(t)});
+
+renderTramites();renderDias();renderSlots();renderCitas();
+</script>
+</body>
+</html>
