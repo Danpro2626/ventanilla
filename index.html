@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14213D">
+<meta name="description" content="Ventanilla: certificados, homologaciones y citas de bienestar de tu universidad en un solo lugar..">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%2314213D%27/%3E%3Ctext x=%2732%27 y=%2745%27 font-size=%2738%27 text-anchor=%27middle%27%3E🎫%3C/text%3E%3C/svg%3E">
 <title>Ventanilla — todos tus trámites universitarios en un lugar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
@@ -193,6 +195,34 @@ select{max-width:100%}
  .days{max-width:100%}
  .steps{gap:2px}
 }
+
+/* ---------- Panel universidades, feedback, demo ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+.kpi{background:#fff;border:2px solid var(--ink);border-radius:14px;padding:12px 14px;box-shadow:3px 3px 0 var(--ink)}
+.kpi b{display:block;font:800 1.9rem "Bricolage Grotesque",sans-serif;color:var(--ink);line-height:1.1}
+.kpi span{font-size:.85rem;color:var(--mute)}
+.bar{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:.92rem}
+.bar i{display:block;height:12px;border-radius:6px;background:var(--teal);min-width:4px}
+.base{display:grid;grid-template-columns:1fr auto auto;gap:4px 14px;font-size:.92rem}
+.base .h{font-weight:700;color:var(--mute);font-size:.8rem}
+.res{background:var(--tealbg);border-radius:12px;padding:12px 14px;margin-top:12px;font-weight:600}
+.ayuda{background:#FFF6D9;border:2px solid var(--ticket);border-radius:12px;padding:10px 14px;margin:0 0 14px;font-size:.92rem}
+.btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--ink)}
+.rate{display:flex;gap:6px;flex-wrap:wrap}.rate label{border:2px solid var(--ink);border-radius:10px;padding:6px 14px;cursor:pointer;font-weight:700}
+.rate input{position:absolute;opacity:0}.rate label:has(input:checked){background:var(--ticket)}
+.rate label:has(input:focus-visible){outline:3px solid var(--teal)}
+
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.demobar{background:var(--ink);color:#E8EEF8;font-size:.85rem;text-align:center;padding:7px 12px}
+.demobar a{color:var(--ticket);font-weight:700}
+.tour{background:#fff;border:2.5px solid var(--ink);border-radius:16px;box-shadow:5px 5px 0 var(--ink);padding:16px 18px;margin:14px 0;position:relative}
+.tour h3{margin:0 0 4px}.tour p{margin:0 0 10px}
+.tour .go{display:flex;gap:8px;flex-wrap:wrap}
+.tour .x{position:absolute;top:8px;right:10px;border:0;background:none;font-size:1.4rem;cursor:pointer;color:var(--mute);min-height:0}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;border-left:6px solid var(--ticket);box-shadow:0 12px 30px -8px rgba(20,33,61,.6);opacity:0;pointer-events:none;transition:.25s;z-index:99;max-width:min(92vw,460px);font-weight:600}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+footer.pie2{max-width:1000px;margin:10px auto 0;padding:22px 16px 40px;color:var(--mute);font-size:.88rem;text-align:center;border-top:2px dashed var(--line)}
+@media (max-width:640px){#toast{bottom:90px}nav button{font-size:.74rem!important;padding:10px 2px!important}footer.pie2{padding-bottom:100px}}
 </style>
 </head>
 <body>
@@ -219,8 +249,10 @@ select{max-width:100%}
 <a id="uniLink" href="#" target="_blank" rel="noopener">Ir al sitio oficial</a></div></div>
 <nav role="tablist" aria-label="Secciones">
   <button role="tab" id="t-guia" aria-selected="true" data-tab="guia">Asistente</button>
-  <button role="tab" id="t-tramites" aria-selected="false" data-tab="tramites">Mis trámites</button>
-  <button role="tab" id="t-citas" aria-selected="false" data-tab="citas">Citas de bienestar</button>
+  <button role="tab" id="t-tramites" aria-selected="false" data-tab="tramites">Trámites</button>
+  <button role="tab" id="t-citas" aria-selected="false" data-tab="citas">Citas</button>
+  <button role="tab" id="t-uni" aria-selected="false" data-tab="uni">Universidad</button>
+  <button role="tab" id="t-op" aria-selected="false" data-tab="op">Opinión</button>
 </nav>
 
 <main>
@@ -228,6 +260,9 @@ select{max-width:100%}
 <section id="guia" role="tabpanel" aria-labelledby="t-guia">
   <h2>¿Qué trámite necesitas?</h2>
   <p>Pregunta con tus palabras. Te digo requisitos, costo, tiempo y oficina, y marcas lo que ya tienes.</p>
+  <div class="tour" id="tour"><button class="x" id="tourX" type="button" aria-label="Cerrar guía">×</button>
+    <h3>Pruébalo en un minuto</h3><p>Ventanilla reúne los trámites de tu universidad. Estos atajos te llevan por lo principal:</p>
+    <div class="go"><button class="btn" data-go="q" type="button">1. Preguntar por un certificado</button><button class="btn ghost" data-go="tramites" type="button">2. Ver el seguimiento</button><button class="btn ghost" data-go="citas" type="button">3. Reservar una cita</button><button class="btn ghost" data-go="uni" type="button">4. Vista de la universidad</button></div></div>
   <div class="chips" id="chips"></div>
   <div class="card"><div id="chat" aria-live="polite"></div>
     <form class="row" id="chatForm">
@@ -240,7 +275,7 @@ select{max-width:100%}
 <!-- MIS TRAMITES -->
 <section id="tramites" role="tabpanel" aria-labelledby="t-tramites" hidden>
   <h2>Mis trámites</h2>
-  <p>Mira en qué paso va cada solicitud. Aquí puedes simular el avance para la demostración.</p>
+  <p>Mira en qué paso va cada solicitud.</p>
   <div class="card">
     <label class="lbl" for="nuevoTipo" style="margin-top:0">Nueva solicitud</label>
     <form class="row" id="nuevoForm" style="margin-top:0">
@@ -267,11 +302,57 @@ select{max-width:100%}
     <label class="lbl" style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" id="anon"> Reservar de forma discreta (sin mostrar el servicio en mi lista)</label>
     <p style="margin-top:14px"><button class="btn" id="reservar" type="button">Reservar cita</button> <span id="resMsg" class="meta" role="status"></span></p>
   </div>
+  <div class="ayuda" style="margin-top:14px"><strong>¿Necesitas hablar con alguien ahora?</strong> En Colombia puedes llamar a la Línea 106 (salud mental, gratuita). Tu cita discreta no muestra el servicio en tu lista.</div>
   <h3 style="margin:22px 0 10px">Mis citas</h3>
   <div id="misCitas"></div>
 </section>
 
+<!-- UNIVERSIDADES -->
+<section id="uni" role="tabpanel" aria-labelledby="t-uni" hidden>
+  <h2>Panel para universidades</h2>
+  <p>Lo que vería la oficina de Registro o Bienestar de <strong id="uniNom"></strong>. Los números se calculan con la actividad de esta app; en el piloto vendrían de los estudiantes reales.</p>
+  <div class="kpis" id="kpis"></div>
+  <div class="card"><strong>Trámites más solicitados</strong><div id="topT" style="margin-top:8px"></div></div>
+  <div class="card"><strong>Línea base de la encuesta (25 estudiantes, 8 universidades)</strong>
+    <div class="base" style="margin-top:8px">
+      <span class="h">Indicador</span><span class="h">Hoy</span><span class="h">Meta con Ventanilla</span>
+      <span>Tardó más de 1 hora en un trámite</span><b>80%</b><span>menos de 40%</span>
+      <span>Tuvo que volver a la oficina</span><b>64%</b><span>menos de 25%</span>
+      <span>Satisfacción con el proceso</span><b>2,8 / 5</b><span>4 / 5 o más</span>
+    </div></div>
+  <div class="card"><strong>Calculadora de ahorro para la universidad</strong>
+    <p class="meta" style="margin:4px 0 0">Cambia los valores por los de tu oficina. Es una estimación, no una promesa.</p>
+    <label class="lbl" for="cSem">Consultas repetidas por semana</label><input type="text" inputmode="numeric" id="cSem" value="400">
+    <label class="lbl" for="cMin">Minutos de atención por consulta</label><input type="text" inputmode="numeric" id="cMin" value="10">
+    <label class="lbl" for="cCosto">Costo por hora del personal (COP)</label><input type="text" inputmode="numeric" id="cCosto" value="15000">
+    <label class="lbl" for="cPct">% de consultas que resuelve la app</label><input type="text" inputmode="numeric" id="cPct" value="40">
+    <div class="res" id="cRes" role="status"></div></div>
+  <div class="card"><strong>¿Quieres un piloto gratuito de un mes?</strong>
+    <p class="meta" style="margin:4px 0 10px">Lo configuramos con los requisitos y costos verificados por tu oficina de Registro Académico.</p>
+    <a class="btn" id="pilotoLink" href="#">Solicitar piloto</a></div>
+  <div class="card"><strong>Datos de ejemplo</strong>
+    <p class="meta" style="margin:4px 0 10px">Restaura los datos de ejemplo o deja todo en blanco para empezar de cero.</p>
+    <button class="btn" id="demoOn" type="button">Restaurar datos de ejemplo</button>
+    <button class="btn ghost" id="demoOff" type="button">Empezar en blanco</button></div>
+</section>
+
+<!-- OPINION -->
+<section id="op" role="tabpanel" aria-labelledby="t-op" hidden>
+  <h2>Cuéntanos tu experiencia</h2>
+  <p>Son 4 preguntas. Tu respuesta nos ayuda a priorizar qué mejorar primero.</p>
+  <div class="card">
+    <label class="lbl" for="fbT" style="margin-top:0">¿Qué trámite te ha hecho perder más tiempo?</label><select id="fbT"></select>
+    <span class="lbl">¿Usarías la reserva discreta de citas?</span>
+    <div class="rate" id="fbD"><label><input type="radio" name="fbD" value="Sí">Sí</label><label><input type="radio" name="fbD" value="Tal vez">Tal vez</label><label><input type="radio" name="fbD" value="No">No</label></div>
+    <span class="lbl">¿Qué tan clara te pareció la lista de documentos? (1 a 5)</span>
+    <div class="rate" id="fbC"><label><input type="radio" name="fbC" value="1">1</label><label><input type="radio" name="fbC" value="2">2</label><label><input type="radio" name="fbC" value="3">3</label><label><input type="radio" name="fbC" value="4">4</label><label><input type="radio" name="fbC" value="5">5</label></div>
+    <label class="lbl" for="fbX">¿Qué le agregarías? (opcional)</label><input type="text" id="fbX" maxlength="200">
+    <p style="margin-top:14px"><button class="btn" id="fbEnv" type="button">Enviar opinión</button> <span id="fbMsg" class="meta" role="status"></span></p>
+  </div>
+</section>
+
 </main>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* ---------- Utilidades ---------- */
@@ -427,10 +508,16 @@ const KB=[
  {id:"cancelacion",nombre:"Cancelación de materias",keys:["cancelar materia","cancelacion","retirar materia","retiro"],
   req:["Solicitud en el portal antes de la fecha límite del calendario académico","Aprobación del director de programa (según reglamento estudiantil)"],donde:"Portal estudiantil y Dirección de programa"},
  {id:"bienestar",nombre:"Cita con Bienestar",keys:["bienestar","psicologia","psicologo","cita","orientacion","salud mental","trabajo social"],
-  req:["Carné estudiantil o documento de identidad","Elegir el servicio (psicología, orientación, trabajo social)"],donde:"Bienestar Universitario. Reserva en la pestaña Citas de bienestar"}
+  req:["Carné estudiantil o documento de identidad","Elegir el servicio (psicología, orientación, trabajo social)"],donde:"Bienestar Universitario. Reserva en la pestaña Citas de bienestar"},
+ {id:"grado",nombre:"Solicitud de grado",keys:["graduarme","graduacion","solicitud de grado","ceremonia de grado","titulo"],
+  req:["Documento de identidad","Paz y salvo académico y financiero","Haber aprobado todos los créditos del plan de estudios","Solicitud en el portal dentro de las fechas del calendario","Recibo de pago de derechos de grado"],donde:"Dirección de tu programa y {reg}"},
+ {id:"reintegro",nombre:"Reintegro",keys:["reintegro","volver a estudiar","reingreso","retomar estudios"],
+  req:["Documento de identidad","Carta de solicitud al director del programa","Estar dentro del plazo máximo de reintegro del reglamento","Paz y salvo de la etapa anterior"],donde:"Dirección de tu programa y {reg}"},
+ {id:"beca",nombre:"Beca o apoyo económico",keys:["beca","becas","apoyo economico","descuento","financiacion"],
+  req:["Documento de identidad","Formulario de la convocatoria vigente","Certificado de ingresos o estrato, según la convocatoria","Certificado de notas con el promedio exigido"],donde:"Bienestar o Tesorería (según la convocatoria)"}
 ];
 const SUGERENCIAS=["Certificado de notas","Homologación","Paz y salvo","Cancelar una materia","Cita con bienestar"];
-let uniId=store.get("vt_uni","unal");
+let uniId=store.get("vt_uni","universidad-el-bosque");
 const uni=()=>UNIS.find(u=>u.id===uniId)||UNIS[0];
 const donde=k=>k.donde.replace("{reg}",uni().reg);
 function costoHTML(k){
@@ -462,9 +549,9 @@ function respuesta(k){
 function preguntar(texto){
   if(!texto.trim())return;
   addMsg(esc(texto),"u");
-  const k=buscar(texto);
-  if(k)respuesta(k);
-  else addMsg("No encontré ese trámite. Prueba con una de estas opciones: certificado de notas, homologación, paz y salvo, cancelar materia o cita con bienestar.","b");
+  const w=addMsg('<span class="meta">Escribiendo…</span>',"b");
+  setTimeout(()=>{w.remove();const k=buscar(texto);if(k)respuesta(k);
+    else addMsg(`Aún no tengo ese trámite. Prueba con uno de estos:<div class="chips" style="margin-top:8px">${SUGERENCIAS.map(x=>`<button class="chip" type="button" data-q="${x}">${x}</button>`).join("")}</div>`,"b")},450);
 }
 $("#chips").innerHTML=SUGERENCIAS.map(s=>`<button class="chip" type="button">${s}</button>`).join("");
 $("#chips").addEventListener("click",e=>{if(e.target.classList.contains("chip"))preguntar(e.target.textContent)});
@@ -475,7 +562,7 @@ chat.addEventListener("click",e=>{const id=e.target.dataset.solicitar;if(id){cre
 /* ---------- Mis trámites ---------- */
 const PASOS=["Solicitado","En revisión","Listo para recoger"];
 let tramites=store.get("vt_tramites",null);
-if(!tramites){tramites=[{n:"T-0412",id:"cert-notas",u:"unal",paso:1,fecha:"2026-10-12"}];store.set("vt_tramites",tramites)}
+if(!tramites){tramites=[{n:"T-4821",id:"cert-estudio",u:uniId,paso:2,fecha:"2026-10-20"},{n:"T-4873",id:"cert-notas",u:uniId,paso:1,fecha:"2026-10-24"},{n:"T-4890",id:"homologacion",u:uniId,paso:0,fecha:"2026-10-27"}];store.set("vt_tramites",tramites)}
 $("#nuevoTipo").innerHTML=KB.filter(k=>k.id!=="bienestar").map(k=>`<option value="${k.id}">${k.nombre}</option>`).join("");
 function crearTramite(id){
   const n="T-"+String(Math.floor(Math.random()*9000)+1000);
@@ -494,7 +581,7 @@ function renderTramites(){
       <div class="steps">${PASOS.map((p,j)=>`<div class="step ${j<=t.paso?"on":""}">${p}</div>`).join("")}</div>
       ${listo?`<span class="done">Listo. Recógelo en: ${esc(donde(k))}</span>`:""}
     </div><div style="display:flex;flex-direction:column;gap:6px;align-self:start">
-      ${listo?"":`<button class="btn alt" data-adv="${i}" type="button">Simular avance</button>`}
+      ${listo?"":`<button class="btn alt" data-adv="${i}" type="button">Avanzar paso</button>`}
       <button class="btn danger" data-del="${i}" type="button">Quitar</button></div></div>`}).join("");
 }
 $("#lista").addEventListener("click",e=>{
@@ -508,7 +595,7 @@ $("#nuevoForm").addEventListener("submit",e=>{e.preventDefault();crearTramite($(
 
 /* ---------- Citas ---------- */
 const HORAS=["8:00","9:00","10:00","11:00","14:00","15:00","16:00","17:00"];
-let citas=store.get("vt_citas",[]);
+let citas=store.get("vt_citas",null)||[{dia:proximosDias()[1].toISOString().slice(0,10),hora:"10:00",servicio:"Orientación académica",anon:false}];
 const OCUPADAS=h=>(h.charCodeAt(0)+h.length)%3===0; // horas "ya tomadas" de ejemplo
 function proximosDias(){
   const out=[],d=new Date();
@@ -531,7 +618,7 @@ function renderCitas(){
   if(!citas.length){b.innerHTML='<p class="empty">No tienes citas. Elige un día y una hora arriba.</p>';return}
   b.innerHTML=citas.map((c,i)=>`<div class="card" style="display:flex;justify-content:space-between;gap:10px;align-items:center">
     <div><strong>${c.dia} a las ${c.hora}</strong><div class="meta">${c.anon?"Cita de Bienestar":esc(c.servicio)}</div></div>
-    <button class="btn danger" data-c="${i}" type="button">Cancelar</button></div>`).join("");
+    <span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn ghost" data-ics="${i}" type="button">Añadir al calendario</button><button class="btn danger" data-c="${i}" type="button">Cancelar</button></span></div>`).join("");
 }
 $("#days").addEventListener("click",e=>{const d=e.target.dataset.d;if(d){diaSel=d;horaSel=null;renderDias();renderSlots()}});
 $("#slots").addEventListener("click",e=>{const h=e.target.dataset.h;if(h){horaSel=h;renderSlots()}});
@@ -611,6 +698,87 @@ function goTab(name){
 document.querySelector("nav").addEventListener("click",e=>{const t=e.target.dataset.tab;if(t)goTab(t)});
 
 renderTramites();renderDias();renderSlots();renderCitas();
+
+/* ---------- Calendario .ics ---------- */
+$("#misCitas").addEventListener("click",e=>{
+  const i=e.target.dataset.ics;if(i===undefined)return;
+  const c=citas[i];if(!c)return;
+  const [h,m]=c.hora.split(":"),p=n=>String(n).padStart(2,"0"),d=c.dia.replace(/-/g,"");
+  const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Ventanilla//ES","BEGIN:VEVENT",
+    "UID:"+d+h+m+"@ventanilla","DTSTAMP:"+d+"T000000","DTSTART:"+d+"T"+p(h)+m+"00","DTEND:"+d+"T"+p(+h+1)+m+"00",
+    "SUMMARY:"+(c.anon?"Cita en Bienestar":"Bienestar: "+c.servicio),"DESCRIPTION:Cita reservada en Ventanilla. Lleva tu carné o documento.",
+    "BEGIN:VALARM","TRIGGER:-PT1H","ACTION:DISPLAY","DESCRIPTION:Cita en 1 hora","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([ics],{type:"text/calendar"}));a.download="cita-bienestar.ics";a.click();
+});
+
+/* ---------- Opinión ---------- */
+let fbs=store.get("vt_fb",null)||[{t:"Certificado de notas",d:"Sí",c:4,x:"Que avise cuando esté listo",u:uniId,f:"2026-10-26"},{t:"Homologación o transferencia de materias",d:"Tal vez",c:5,x:"",u:uniId,f:"2026-10-27"},{t:"Certificado de notas",d:"Sí",c:3,x:"",u:uniId,f:"2026-10-28"}];
+$("#fbT").innerHTML=KB.map(k=>`<option>${k.nombre}</option>`).join("");
+$("#fbEnv").addEventListener("click",()=>{
+  const g=n=>{const r=document.querySelector(`input[name=${n}]:checked`);return r?r.value:""};
+  const m=$("#fbMsg");
+  if(!g("fbD")||!g("fbC")){m.textContent="Responde las dos preguntas de opción primero.";return}
+  fbs.push({t:$("#fbT").value,d:g("fbD"),c:+g("fbC"),x:$("#fbX").value.slice(0,200),u:uniId,f:new Date().toISOString().slice(0,10)});
+  store.set("vt_fb",fbs);$("#fbX").value="";document.querySelectorAll("#op input[type=radio]").forEach(r=>r.checked=false);
+  m.textContent="¡Gracias! Tu opinión quedó registrada.";renderPanel();
+});
+
+/* ---------- Panel universidades ---------- */
+const fmt=n=>"$"+Math.round(n).toLocaleString("es-CO");
+function renderPanel(){
+  $("#uniNom").textContent=uni().n;
+  const mios=tramites.filter(t=>t.u===uniId),listos=mios.filter(t=>t.paso>=2).length;
+  const sat=fbs.length?(fbs.reduce((a,f)=>a+f.c,0)/fbs.length).toFixed(1).replace(".",","):"—";
+  const disc=fbs.length?Math.round(100*fbs.filter(f=>f.d==="Sí").length/fbs.length)+"%":"—";
+  $("#kpis").innerHTML=[[mios.length,"trámites iniciados"],[mios.length-listos,"en proceso"],[listos,"listos para recoger"],[citas.length,"citas de bienestar"],[fbs.length,"opiniones recibidas"],[sat,"claridad de requisitos (1-5)"],[disc,"usaría reserva discreta"],[mios.length,"consultas evitadas (est.)"]]
+    .map(([n,t])=>`<div class="kpi"><b>${n}</b><span>${t}</span></div>`).join("");
+  const cont={};mios.forEach(t=>cont[t.id]=(cont[t.id]||0)+1);
+  const top=Object.entries(cont).sort((a,b)=>b[1]-a[1]),max=top.length?top[0][1]:1;
+  $("#topT").innerHTML=top.length?top.map(([id,n])=>`<div class="bar"><span style="flex:0 0 42%;min-width:0">${esc(KB.find(k=>k.id===id).nombre)}</span><i style="width:${Math.max(6,n/max*50)}%"></i><b>${n}</b></div>`).join(""):'<p class="empty">Aún no hay trámites. Inicia uno desde el asistente o carga los datos de ejemplo.</p>';
+  calc();
+}
+function calc(){
+  const v=id=>Math.max(0,parseFloat(($(id).value||"0").replace(/[^0-9.]/g,""))||0);
+  const horas=v("#cSem")*4*Math.min(v("#cPct"),100)/100*v("#cMin")/60,ahorro=horas*v("#cCosto"),precio=1500000;
+  $("#cRes").innerHTML=`Ahorras unas ${Math.round(horas)} horas de atención al mes, cerca de ${fmt(ahorro)}.<br>${ahorro>=precio?`La suscripción de ${fmt(precio)} al mes se paga sola (${(ahorro/precio).toFixed(1).replace(".",",")} veces).`:`Con estos datos la suscripción de ${fmt(precio)} aún no se cubre solo con tiempo de atención; suma también menos quejas y más acceso a bienestar.`}`;
+}
+["#cSem","#cMin","#cCosto","#cPct"].forEach(i=>$(i).addEventListener("input",calc));
+$("#pilotoLink").href="mailto:?subject="+encodeURIComponent("Piloto Ventanilla")+"&body="+encodeURIComponent("Hola, nos interesa un piloto gratuito de un mes de Ventanilla para nuestra universidad.");
+document.querySelector("nav").addEventListener("click",e=>{if(e.target.dataset.tab==="uni")renderPanel()});
+
+/* ---------- Modo demo ---------- */
+$("#demoOn").addEventListener("click",()=>{
+  const ids=["cert-notas","cert-notas","cert-notas","cert-estudio","cert-estudio","homologacion","homologacion","paz-y-salvo","cancelacion","grado"];
+  store.set("vt_tramites",ids.map((id,i)=>({n:"T-"+(1100+i*37),id,u:uniId,paso:i%3,fecha:"2026-10-"+String(10+i%15)})));
+  const d=DIAS.map(iso);
+  store.set("vt_citas",[{dia:d[0],hora:"9:00",servicio:"Psicología",anon:true},{dia:d[1],hora:"15:00",servicio:"Orientación académica",anon:false},{dia:d[2],hora:"10:00",servicio:"Trabajo social",anon:true}]);
+  store.set("vt_fb",[{t:"Certificado de notas",d:"Sí",c:4,x:"Que avise cuando esté listo",u:uniId,f:"2026-10-27"},{t:"Homologación o transferencia de materias",d:"Tal vez",c:5,x:"",u:uniId,f:"2026-10-27"},{t:"Certificado de notas",d:"Sí",c:3,x:"",u:uniId,f:"2026-10-28"}]);
+  location.reload();
+});
+$("#demoOff").addEventListener("click",()=>{store.set("vt_tramites",[]);store.set("vt_citas",[]);store.set("vt_fb",[]);location.reload()});
+renderPanel();
+
+/* ---------- Pulido de experiencia ---------- */
+const toastEl=$("#toast");let tt;
+function toast(m){if(!m)return;toastEl.textContent=m;toastEl.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>toastEl.classList.remove("on"),2800)}
+document.addEventListener("click",e=>{const t=e.target,d=t.dataset||{};
+  if(d.solicitar)toast("Trámite iniciado. Míralo en la pestaña Trámites.");
+  else if(d.adv!==undefined)toast("Avance simulado: tu trámite cambió de estado.");
+  else if(d.del!==undefined)toast("Trámite quitado de tu lista.");
+  else if(d.c!==undefined)toast("Cita cancelada.");
+  else if(d.ics!==undefined)toast("Archivo de calendario descargado.");
+  else if(t.id==="reservar")setTimeout(()=>toast($("#resMsg").textContent),0);
+  else if(t.id==="fbEnv")setTimeout(()=>toast($("#fbMsg").textContent),0);
+  if(d.q){preguntar(d.q);return}
+  if(d.go){e.preventDefault();if(d.go==="q"){goTab("guia");preguntar("certificado de notas")}else{goTab(d.go);if(d.go==="uni")renderPanel()}}
+});
+$("#nuevoForm").addEventListener("submit",()=>toast("Trámite iniciado. Aparece primero en tu lista."));
+const _goTab=goTab;
+goTab=function(n){_goTab(n);history.replaceState(null,"","#"+n);document.querySelector("main").scrollIntoView({behavior:"smooth",block:"start"})};
+if(store.get("vt_tour",false))$("#tour").hidden=true;
+$("#tourX").addEventListener("click",()=>{$("#tour").hidden=true;store.set("vt_tour",true)});
+const h0=location.hash.slice(1);
+if(["guia","tramites","citas","uni","op"].includes(h0)){_goTab(h0);if(h0==="uni")renderPanel()}
 </script>
 </body>
 </html>
